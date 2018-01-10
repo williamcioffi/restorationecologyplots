@@ -1,5 +1,6 @@
 # restoration ecology graphs
 # 26august2017
+# edited 10january2018
 
 # libraries
 library(ggplot2)
@@ -25,7 +26,7 @@ stoopidtheme <- theme_bw() +
 		axis.title 			= element_text(size = 12)
 	)
 	
-ylims <- ylim(0, 210)
+ylims <- ylim(0, 1)
 
 letterlabeltextsize <- 8
 barwidth <- 0.75
@@ -39,12 +40,15 @@ habitat <- a[, 22:24]
 habitat.sum <- stack(apply(habitat, 2, sum))
 habdat <- data.frame(values = habitat.sum[, 1], ind = as.character(habitat.sum[, 2]), stringsAsFactors = FALSE)
 habdat[1, 2] <- "Salt Marsh"
+ntot <- nrow(habitat)
+habdat$perc <- habdat$values / ntot
 
-p1 <- ggplot(data = habdat, aes(x = ind, y = values, width = barwidth), size = 0) 
+p1 <- ggplot(data = habdat, aes(x = ind, y = perc, width = barwidth), size = 0) 
 p1 <- p1 + geom_bar(colour = "black", stat = "identity") 
 p1 <- p1 + stoopidtheme + ylims
-p1 <- p1 + ylab("Number of Studies") + xlab("")
-p1 <- p1 + labels + annotate("text", x = 0.66, y = 200, label = "a", size = letterlabeltextsize)
+p1 <- p1 + ylab("Proportion of Studies") + xlab("")
+p1 <- p1 + labels + annotate("text", x = 0.66, y = 1, label = "a", size = letterlabeltextsize)
+p1
 
 
 #affiliation
@@ -53,37 +57,48 @@ affil <- a[, 8:10]
 names(affil) <- c("University", "Government", "NGO")
 affil.sum <- stack(apply(affil, 2, sum))
 afdat <- data.frame(values = affil.sum[, 1], ind = affil.sum[, 2])
+ntot <- nrow(affil)
+afdat$perc <- afdat$values / ntot
+afdat$ind <- factor(afdat$ind, levels = c("Government", "NGO", "University"))
 
-p2 <- ggplot(data = afdat, aes(x = ind, y = values, width = barwidth)) 
+p2 <- ggplot(data = afdat, aes(x = ind, y = perc, width = barwidth)) 
 p2 <- p2 + geom_bar(colour = "black", stat = "identity") 
-p2 <- p2 + stoopidtheme 
-p2 <- p2 + ylab("Number of Studies") + xlab("")
-p2 <- p2 + ylim(0, 300)
-p2 <- p2 + labels + annotate("text", x = 0.66, y = 285.7, label = "b", size = letterlabeltextsize)
+p2 <- p2 + stoopidtheme
+p2 <- p2 + xlab("") + ylab("") #+ ylab("Proportion of Studies") #remove ylabel
+p2 <- p2 + ylim(0, 1)
+p2 <- p2 + labels + annotate("text", x = 0.66, y = 1, label = "b", size = letterlabeltextsize)
+p2
 
 #study type
 
-type <- a[, 18:21]
+type <- a[, 19:21]
 type.sum <- stack(apply(type, 2, sum))
 tydat <- data.frame(values = type.sum[, 1], ind = type.sum[, 2])
+ntot <- nrow(type)
+tydat$perc <- tydat$values / ntot
+tydat$ind <- factor(tydat$ind, levels = c("Experimental", "Observational", "Review"))
 
-p3 <- ggplot(data = tydat, aes(x = ind, y = values, width = barwidth)) 
+p3 <- ggplot(data = tydat, aes(x = ind, y = perc, width = barwidth)) 
 p3 <- p3 + geom_bar(colour = "black", stat = "identity") 
 p3 <- p3 + stoopidtheme  + ylims
-p3 <- p3 + ylab("Number of Studies") + xlab("")
-p3 <- p3 + labels + annotate("text", x = 0.66, y = 200, label = "c", size = letterlabeltextsize)
+p3 <- p3 + ylab("Proportion of Studies") + xlab("")
+p3 <- p3 + labels + annotate("text", x = 0.66, y = 1, label = "c", size = letterlabeltextsize)
+p3
 
 #restoration phase
-phase <- a[, 15:17]
+phase <- a[, 15:18]
 phase.sum <- stack(apply(phase, 2, sum))
 phdat <- data.frame(values = phase.sum[, 1], ind = as.character(phase.sum[, 2]), stringsAsFactors = FALSE)
 phdat[1, 2] <- "Site Selection"
+ntot <- nrow(phase)
+phdat$perc <- phdat$value / ntot
 
-p4 <- ggplot(data = phdat, aes(x = ind, y = values, width = barwidth)) 
+p4 <- ggplot(data = phdat, aes(x = ind, y = perc, width = barwidth)) 
 p4 <- p4 + geom_bar(colour = "black", stat = "identity") 
 p4 <- p4 + stoopidtheme + ylims
-p4 <- p4 + ylab("Number of Studies") + xlab("")
-p4 <- p4 + labels + annotate("text", x = 0.66, y = 200, label = "d", size = letterlabeltextsize)
+p4 <- p4 + xlab("") + ylab("") #+ ylab("Proportion of Studies") #remove ylabel
+p4 <- p4 + labels + annotate("text", x = 0.66, y = 1, label = "d", size = letterlabeltextsize)
+p4
 
 #plot these loosers
 grid.arrange(p1, p2, p3, p4, nrow = 2, ncol = 2)
@@ -130,11 +145,14 @@ bpdat[1, 2] <- "abiotic"
 bpdat[2, 2] <- "biotic"
 bpdat[3, 2] <- "both"
 
-p5 <- ggplot(data = bpdat, aes(x = ind, y = values, width = barwidth)) 
+ntot <- nrow(biophydf)
+bpdat$perc <- bpdat$values / ntot
+
+p5 <- ggplot(data = bpdat, aes(x = ind, y = perc, width = barwidth)) 
 p5 <- p5 + geom_bar(colour = "black", stat = "identity") 
-p5 <- p5 + stoopidtheme  #+ ylims
-p5 <- p5 + ylab("Number of Studies") + xlab("")
-p5 <- p5 + labels
+p5 <- p5 + stoopidtheme + ylims
+p5 <- p5 + ylab("Proportion of Studies") + xlab("")
+p5 <- p5 + labels + annotate("text", x = 0.66, y = 1, label = "a", size = letterlabeltextsize)
 p5
 
 ################
@@ -210,15 +228,17 @@ order_of_habitats[which(facdat_10_melted$habitat == "Oyster/Seagrass")] 	<- 2
 order_of_habitats[which(facdat_10_melted$habitat == "All")] 				<- 1
 facdat_10_melted[, 'order_of_habitats'] <- order_of_habitats
 
-p6 <- ggplot(data = facdat_10_melted, aes(x = reorder(ind, -values), y = values, fill = reorder(habitat, order_of_habitats), width = barwidth)) 
+facdat_10_melted$perc <- facdat_10_melted$values / ntot
+
+p6 <- ggplot(data = facdat_10_melted, aes(x = reorder(ind, -perc), y = perc, fill = reorder(habitat, order_of_habitats), width = barwidth)) 
 p6 <- p6 + geom_bar(colour = "black", stat = "identity") 
-p6 <- p6 + stoopidtheme  #+ ylims
-p6 <- p6 + scale_fill_grey(start = 0, end = 1)
-p6 <- p6 + ylab("Number of Studies") + xlab("")
+p6 <- p6 + stoopidtheme #+ ylims
+p6 <- p6 + scale_fill_grey(start = 0, end = 0.95)
+p6 <- p6 + ylab("Proportion of Studies") + xlab("")
 p6 <- p6 + theme(axis.text.x = element_text(angle = 45, hjust = 1))
 p6 <- p6 + theme(plot.margin = margin(5.5, 5.5, 5.5, 20, "points"))
 p6 <- p6 + theme(legend.title=element_blank())
-p6 <- p6 + annotate("text", x = 1:nrow(facdat_10), y = facdat_10$values + 3, label = as.character(facdat_10$values))
+p6 <- p6 + annotate("text", x = 1:nrow(facdat_10), y = (facdat_10$values / ntot) + 3/ntot, label = as.character(facdat_10$values))
 p6
 
 ################
@@ -353,7 +373,7 @@ p8 <- p8 + geom_line(aes(linetype = type), colour = "black")
 p8 <- p8 + stoopidtheme
 p8 <- p8 + ylab("Number of Studies") + xlab("")
 p8 <- p8 + scale_x_continuous(breaks = seq(min(floor(a$Year/5)*5), max(floor(a$Year/5)*5), by = 5))
-p8 <- p8 + theme(legend.title=element_blank())
+p8 <- p8 + theme(legend.title = element_blank(), legend.position = c(.5, .955), legend.direction = "horizontal")
 p8 <- p8 + ylim(0, 55) + annotate("text", x = 1985, y = 55, label = "a", size = letterlabeltextsize)
 
 
@@ -428,7 +448,7 @@ p9 <- p9 + geom_line(aes(linetype = type), colour = "black")
 p9 <- p9 + stoopidtheme
 p9 <- p9 + ylab("Number of Studies") + xlab("")
 p9 <- p9 + scale_x_continuous(breaks = seq(min(floor(a$Year/5)*5), max(floor(a$Year/5)*5), by = 5))
-p9 <- p9 + theme(legend.title=element_blank())
+p9 <- p9 + theme(legend.title = element_blank(), legend.position = c(.5, .955), legend.direction = "horizontal")
 p9 <- p9 + ylim(0, 55) + annotate("text", x = 1985, y = 55, label = "b", size = letterlabeltextsize)
 
 
@@ -505,13 +525,8 @@ p10 <- p10 + geom_line(aes(linetype = type), colour = "black")
 p10 <- p10 + stoopidtheme
 p10 <- p10 + ylab("Number of Studies") + xlab("")
 p10 <- p10 + scale_x_continuous(breaks = seq(min(floor(a$Year/5)*5), max(floor(a$Year/5)*5), by = 5))
-p10 <- p10 + theme(legend.title=element_blank())
-# p10 <- p10 + ylim(0, 75) + annotate("text", x = 1985, y = 75, label = "b", size = letterlabeltextsize)
+p10 <- p10 + theme(legend.title = element_blank(), legend.position = c(.5, .955), legend.direction = "horizontal")
+p10 <- p10 + annotate("text", x = 1985, y = 200, label = "b", size = letterlabeltextsize)
 p10
 
-
-
-
-### positive species interactions vs. negative species interactions
-
-
+grid.arrange(p5, p10, nrow = 1, ncol = 2)
